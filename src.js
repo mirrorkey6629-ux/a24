@@ -74,10 +74,13 @@ function initScrollCurve() {
         : 0;
       const depthLoss = Math.abs(Math.sin(curve * settings.scaleAngle * Math.PI / 180)) / (2 * settings.depthRatio);
       const fit = 1 - Math.min(depthLoss, .8);
+      const pullProgress = Math.max(0, Math.min(1, (progress - .5) / .5));
+      const pull = -72 * pullProgress ** 1.35;
 
       element.style.setProperty('--curve-t', curve.toFixed(4));
       element.style.setProperty('--curve-fit', fit.toFixed(5));
       element.style.setProperty('--curve-past', past.toFixed(4));
+      element.style.setProperty('--curve-pull', `${pull.toFixed(2)}px`);
     });
   }
 
@@ -108,7 +111,7 @@ function initScrollCurve() {
     if (frame) cancelAnimationFrame(frame);
     frame = 0;
     elements.forEach((element) => {
-      ['--curve-t', '--curve-fit', '--curve-past', '--curve-plane']
+      ['--curve-t', '--curve-fit', '--curve-past', '--curve-pull', '--curve-plane']
         .forEach((property) => element.style.removeProperty(property));
     });
   }

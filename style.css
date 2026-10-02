@@ -28,6 +28,7 @@
 @property --curve-t { syntax: '<number>'; inherits: false; initial-value: 0; }
 @property --curve-fit { syntax: '<number>'; inherits: false; initial-value: 1; }
 @property --curve-past { syntax: '<number>'; inherits: false; initial-value: 0; }
+@property --curve-pull { syntax: '<length>'; inherits: false; initial-value: 0px; }
 @property --curve-plane { syntax: '<length>'; inherits: false; initial-value: 100000px; }
 @property --game-offset { syntax: '<percentage>'; inherits: false; initial-value: 100%; }
 * { box-sizing: border-box; }
@@ -48,7 +49,7 @@ a:hover { opacity: .55; }
   top: var(--top);
   width: 783px;
   transform-origin: 160px 110%;
-  transform: scale(calc(var(--curve-fit) * (1 - var(--curve-past) * var(--curve-recede)))) perspective(var(--curve-plane)) translateZ(calc(var(--curve-t) * -60px)) rotateX(calc(var(--curve-t) * var(--curve-tilt)));
+  transform: translateY(var(--curve-pull)) scale(calc(var(--curve-fit) * (1 - var(--curve-past) * var(--curve-recede)))) perspective(var(--curve-plane)) translateZ(calc(var(--curve-t) * -60px)) rotateX(calc(var(--curve-t) * var(--curve-tilt)));
   filter: brightness(calc(1 - var(--curve-t) * .1)) contrast(calc(1 - var(--curve-t) * .05));
   will-change: transform, filter;
 }
