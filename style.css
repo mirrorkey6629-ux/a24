@@ -70,7 +70,7 @@ a:hover { opacity: .55; }
 .wide-image { width: 320px; height: 180px; border-radius: 10px; object-fit: cover; display: block; }
 .wide-image--small-radius { border-radius: 12px; }
 .case--wide .copy, .case--poster .copy { top: 0; }
-.poster-carousel { position: relative; width: 320px; height: 446px; overflow: hidden; border-radius: 20px; background: #191919; }
+.poster-carousel { position: relative; width: 320px; height: 446px; overflow: hidden; background: #191919; }
 .poster-slide { position: absolute; inset: 0; z-index: 1; display: block; width: 100%; height: 100%; object-fit: cover; opacity: 0; transform: translateX(24px); transition: transform .9s cubic-bezier(.22,.75,.25,1), opacity .9s ease; will-change: transform, opacity; }
 .poster-slide.is-active { z-index: 3; opacity: 1; transform: translateX(0); }
 .poster-slide.is-exiting { z-index: 2; opacity: 0; transform: translateX(-18px); }
