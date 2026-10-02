@@ -26,11 +26,13 @@ function initScrollCurve() {
     const styles = getComputedStyle(document.documentElement);
     const number = (name) => Number.parseFloat(styles.getPropertyValue(name));
     const tilt = number('--curve-tilt');
+    const scaleAngle = number('--curve-scale-angle');
     const depthRatio = number('--curve-depth');
     const falloff = number('--curve-falloff');
     const recedeReach = number('--curve-recede-reach');
     return {
       tilt: Number.isFinite(tilt) ? tilt : 0,
+      scaleAngle: Number.isFinite(scaleAngle) ? scaleAngle : 14,
       depthRatio: Number.isFinite(depthRatio) && depthRatio > 0 ? depthRatio : 100000,
       falloff: Number.isFinite(falloff) && falloff > 0 ? falloff : 1,
       recedeReach: Number.isFinite(recedeReach) && recedeReach > 0 ? recedeReach : 0,
@@ -80,7 +82,7 @@ function initScrollCurve() {
       const past = settings.recedeReach > 0
         ? Math.min(Math.max(progress - 1, 0) / settings.recedeReach, 1)
         : 0;
-      const depthLoss = Math.abs(Math.sin(curve * settings.tilt * Math.PI / 180)) / (2 * settings.depthRatio);
+      const depthLoss = Math.abs(Math.sin(curve * settings.scaleAngle * Math.PI / 180)) / (2 * settings.depthRatio);
       const fit = 1 - Math.min(depthLoss, .8);
 
       element.style.setProperty('--curve-t', curve.toFixed(4));
