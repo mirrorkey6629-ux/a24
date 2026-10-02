@@ -82,7 +82,7 @@ a:hover { opacity: .55; }
   pointer-events: none;
 }
 .finish canvas { display: block; width: 650px; height: 150px; image-rendering: pixelated; }
-.finish :focus-visible { outline: 2px solid rgba(0,0,0,.4); outline-offset: 2px; border-radius: 8px; }
+.finish :focus-visible { outline: none; }
 @media (prefers-reduced-motion: reduce) {
   .case { transform: none; filter: none; opacity: 1; }
   .finish { will-change: auto; }
