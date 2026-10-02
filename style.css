@@ -13,7 +13,23 @@
   font-display: swap;
 }
 
-:root { font-family: Inter, Arial, sans-serif; color: #000; background: #d0d0d0; font-synthesis: none; }
+:root {
+  font-family: Inter, Arial, sans-serif;
+  color: #000;
+  background: #d0d0d0;
+  font-synthesis: none;
+  --curve-tilt: 14deg;
+  --curve-depth: 1.45;
+  --curve-skew: 3deg;
+  --curve-falloff: 1.7;
+  --curve-recede: .18;
+  --curve-recede-reach: .6;
+}
+@property --curve-t { syntax: '<number>'; inherits: false; initial-value: 0; }
+@property --curve-fit { syntax: '<number>'; inherits: false; initial-value: 1; }
+@property --curve-past { syntax: '<number>'; inherits: false; initial-value: 0; }
+@property --curve-lean { syntax: '<number>'; inherits: false; initial-value: 0; }
+@property --curve-plane { syntax: '<length>'; inherits: false; initial-value: 100000px; }
 * { box-sizing: border-box; }
 html, body { margin: 0; min-width: 1280px; min-height: 100%; background: #d0d0d0; }
 a { color: inherit; text-decoration: none; }
@@ -26,7 +42,15 @@ a:hover { opacity: .55; }
 .contacts div { margin-bottom: 13px; }
 .contacts dt { color: rgba(0,0,0,.4); }
 .contacts dd { margin: 1px 0 0; }
-.case { position: absolute; left: 517px; top: var(--top); width: 783px; }
+.case {
+  position: absolute;
+  left: 517px;
+  top: var(--top);
+  width: 783px;
+  transform-origin: center center;
+  transform: scale(calc(var(--curve-fit) * (1 - var(--curve-past) * var(--curve-recede)))) skewX(calc(var(--curve-lean) * var(--curve-skew))) perspective(var(--curve-plane)) rotateX(calc(var(--curve-t) * var(--curve-tilt)));
+  will-change: transform;
+}
 .copy { position: absolute; left: 360px; top: 8px; width: 423px; font-size: 14px; font-weight: 400; line-height: 18px; letter-spacing: -.14px; }
 .copy .eyebrow { margin: 0 0 4px; color: rgba(0,0,0,.4); font-family: 'Inter Regular', Inter, Arial, sans-serif; font-weight: 400; font-variation-settings: 'wght' 400; }
 .copy h2 { margin: 0 0 12px; font-size: 28px; font-weight: 500; line-height: 32px; letter-spacing: -.56px; }
@@ -43,6 +67,9 @@ a:hover { opacity: .55; }
 .finish { position: absolute; left: 517px; top: 3460px; width: 650px; height: 150px; overflow: hidden; touch-action: manipulation; }
 .finish canvas { display: block; width: 650px; height: 150px; image-rendering: pixelated; }
 .finish :focus-visible { outline: 2px solid rgba(0,0,0,.4); outline-offset: 2px; border-radius: 8px; }
+@media (prefers-reduced-motion: reduce) {
+  .case { transform: none; }
+}
 @media (max-width: 1439px) {
   .portfolio { margin-left: 0; margin-right: 0; }
   .profile { left: 140px; }
