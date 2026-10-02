@@ -29,7 +29,7 @@ a:hover { opacity: .55; }
 .case { position: absolute; left: 517px; top: var(--top); width: 783px; }
 .copy { position: absolute; left: 360px; top: 8px; width: 423px; font-size: 14px; font-weight: 400; line-height: 18px; letter-spacing: -.14px; }
 .copy .eyebrow { margin: 0 0 4px; color: rgba(0,0,0,.4); font-family: 'Inter Regular', Inter, Arial, sans-serif; font-weight: 400; font-variation-settings: 'wght' 400; }
-.copy h2 { margin: 0 0 12px; font-size: 28px; font-weight: 600; line-height: 32px; letter-spacing: -.56px; }
+.copy h2 { margin: 0 0 12px; font-size: 28px; font-weight: 500; line-height: 32px; letter-spacing: -.56px; }
 .copy p { margin: 0 0 12px; }
 .copy p:last-child { margin-bottom: 0; }
 .phone { position: relative; width: 320px; height: 652px; }
