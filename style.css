@@ -34,7 +34,7 @@
 html, body { margin: 0; min-width: 1280px; min-height: 100%; background: #d0d0d0; }
 a { color: inherit; text-decoration: none; }
 a:hover { opacity: .55; }
-.portfolio { position: relative; width: 1440px; height: 3880px; margin: 0 auto; background: #d0d0d0; overflow: hidden; }
+.portfolio { position: relative; width: 1440px; height: 3610px; margin: 0 auto; background: #d0d0d0; overflow: hidden; }
 .profile { position: fixed; z-index: 10; left: calc(50% - 580px); top: 40px; width: 317px; font-size: 14px; font-weight: 400; line-height: 18px; letter-spacing: -.14px; }
 .profile__avatar { display: block; width: 100px; height: 100px; margin-bottom: 20px; }
 .profile__intro { margin: 0 0 22px; }
