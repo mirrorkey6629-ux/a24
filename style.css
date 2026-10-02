@@ -67,7 +67,7 @@ a:hover { opacity: .55; }
 .phone video.phone__screen.is-ready { opacity: 1; }
 .phone__frame { position: absolute; z-index: 1; top: -33px; left: -111px; width: 547px; height: 695px; max-width: none; }
 .case--wide, .case--poster { height: 446px; }
-.wide-image { width: 320px; height: 180px; border-radius: 20px; object-fit: cover; display: block; }
+.wide-image { width: 320px; height: 180px; border-radius: 10px; object-fit: cover; display: block; }
 .wide-image--small-radius { border-radius: 12px; }
 .case--wide .copy, .case--poster .copy { top: 0; }
 .poster { display: block; width: 320px; height: 446px; border-radius: 20px; object-fit: cover; }
