@@ -69,12 +69,13 @@ function initScrollCurve() {
     frame = 0;
     const viewportHeight = window.innerHeight;
     if (!viewportHeight) return;
-    const viewportCenterY = window.scrollY + viewportHeight / 2;
-    const halfViewport = viewportHeight / 2;
+    const effectStartRatio = .38;
+    const effectStartY = window.scrollY + viewportHeight * effectStartRatio;
+    const effectDistance = viewportHeight * effectStartRatio;
     const maxProgress = 1 + settings.recedeReach;
 
     elements.forEach((element, index) => {
-      const progress = Math.max(0, Math.min(maxProgress, (viewportCenterY - centerY[index]) / halfViewport));
+      const progress = Math.max(0, Math.min(maxProgress, (effectStartY - centerY[index]) / effectDistance));
       if (Math.abs(progress - previousProgress[index]) < .002) return;
       previousProgress[index] = progress;
 
