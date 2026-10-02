@@ -215,3 +215,53 @@ function initExclusiveVideoPlayback() {
 }
 
 initExclusiveVideoPlayback();
+
+function initPosterCarousel() {
+  const carousel = document.querySelector('.poster-carousel');
+  const slides = carousel ? [...carousel.querySelectorAll('.poster-slide')] : [];
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (!carousel || slides.length < 2 || reducedMotion.matches) return;
+
+  let currentIndex = 0;
+  let timer = 0;
+  let isVisible = false;
+
+  function showNext() {
+    const current = slides[currentIndex];
+    currentIndex = (currentIndex + 1) % slides.length;
+    const next = slides[currentIndex];
+
+    current.classList.remove('is-active');
+    current.classList.add('is-exiting');
+    next.classList.remove('is-exiting');
+    next.classList.add('is-active');
+
+    window.setTimeout(() => current.classList.remove('is-exiting'), 950);
+  }
+
+  function start() {
+    if (timer || !isVisible || document.hidden) return;
+    timer = window.setInterval(showNext, 5000);
+  }
+
+  function stop() {
+    if (!timer) return;
+    window.clearInterval(timer);
+    timer = 0;
+  }
+
+  const observer = new IntersectionObserver(([entry]) => {
+    isVisible = entry.isIntersecting;
+    if (isVisible) start();
+    else stop();
+  }, { threshold: .15 });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stop();
+    else start();
+  });
+
+  observer.observe(carousel);
+}
+
+initPosterCarousel();
