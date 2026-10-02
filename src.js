@@ -123,3 +123,33 @@ function initScrollCurve() {
 }
 
 initScrollCurve();
+
+function initGameReveal() {
+  const game = document.querySelector('#footer-game');
+  if (!game) return;
+
+  let frame = 0;
+
+  function update() {
+    frame = 0;
+    const maxScroll = Math.max(document.documentElement.scrollHeight - window.innerHeight, 0);
+    const revealDistance = Math.min(320, maxScroll);
+    const revealStart = maxScroll - revealDistance;
+    const progress = revealDistance > 0
+      ? Math.max(0, Math.min(1, (window.scrollY - revealStart) / revealDistance))
+      : 1;
+
+    game.style.setProperty('--game-offset', `${((1 - progress) * 100).toFixed(2)}%`);
+    game.style.pointerEvents = progress > .98 ? 'auto' : 'none';
+  }
+
+  function requestUpdate() {
+    if (!frame) frame = requestAnimationFrame(update);
+  }
+
+  window.addEventListener('scroll', requestUpdate, { passive: true });
+  window.addEventListener('resize', requestUpdate);
+  update();
+}
+
+initGameReveal();
