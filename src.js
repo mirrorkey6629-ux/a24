@@ -226,9 +226,6 @@ function initPosterCarousel() {
   let timer = 0;
   let isVisible = false;
   let isAnimating = false;
-  let pointerId = null;
-  let pointerStartX = 0;
-  let pointerDeltaX = 0;
 
   function showSlide(nextIndex, direction = 1) {
     if (isAnimating || nextIndex === currentIndex) return;
@@ -258,10 +255,6 @@ function initPosterCarousel() {
     showSlide((currentIndex + 1) % slides.length, 1);
   }
 
-  function showPrevious() {
-    showSlide((currentIndex - 1 + slides.length) % slides.length, -1);
-  }
-
   function start() {
     if (timer || !isVisible || document.hidden) return;
     timer = window.setInterval(showNext, 5000);
@@ -283,45 +276,6 @@ function initPosterCarousel() {
     if (document.hidden) stop();
     else start();
   });
-
-  carousel.addEventListener('dragstart', (event) => event.preventDefault());
-
-  carousel.addEventListener('pointerdown', (event) => {
-    if (isAnimating || event.button > 0) return;
-    pointerId = event.pointerId;
-    pointerStartX = event.clientX;
-    pointerDeltaX = 0;
-    stop();
-    carousel.classList.add('is-dragging');
-    carousel.setPointerCapture(pointerId);
-  });
-
-  carousel.addEventListener('pointermove', (event) => {
-    if (event.pointerId !== pointerId) return;
-    pointerDeltaX = Math.max(-90, Math.min(90, event.clientX - pointerStartX));
-    const current = slides[currentIndex];
-    current.style.transform = `translateX(${pointerDeltaX}px)`;
-    current.style.opacity = `${1 - Math.min(Math.abs(pointerDeltaX) / 180, .45)}`;
-  });
-
-  function finishSwipe(event) {
-    if (event.pointerId !== pointerId) return;
-    const current = slides[currentIndex];
-    const delta = pointerDeltaX;
-
-    pointerId = null;
-    pointerDeltaX = 0;
-    carousel.classList.remove('is-dragging');
-    current.style.removeProperty('transform');
-    current.style.removeProperty('opacity');
-
-    if (delta <= -36) showNext();
-    else if (delta >= 36) showPrevious();
-    start();
-  }
-
-  carousel.addEventListener('pointerup', finishSwipe);
-  carousel.addEventListener('pointercancel', finishSwipe);
 
   observer.observe(carousel);
 }
