@@ -61,8 +61,10 @@ a:hover { opacity: .55; }
 .copy p { margin: 0 0 12px; }
 .copy p:last-child { margin-bottom: 0; }
 .phone { position: relative; width: 320px; height: 652px; }
+.phone::before { content: ''; position: absolute; z-index: 0; left: 16px; top: 15px; width: 288px; height: 622px; border-radius: 40px; background: #000; }
 .phone__screen { position: absolute; z-index: 2; left: 16px; top: 15px; width: 288px; height: 622px; border-radius: 40px; object-fit: cover; }
-.phone video.phone__screen { background: #000; }
+.phone video.phone__screen { opacity: 0; background: #000; transition: opacity .6s ease; }
+.phone video.phone__screen.is-ready { opacity: 1; }
 .phone__frame { position: absolute; z-index: 1; top: -33px; left: -111px; width: 547px; height: 695px; max-width: none; }
 .case--wide, .case--poster { height: 446px; }
 .wide-image { width: 320px; height: 180px; border-radius: 20px; object-fit: cover; display: block; }
@@ -88,6 +90,7 @@ a:hover { opacity: .55; }
 @media (prefers-reduced-motion: reduce) {
   .case { transform: none; filter: none; opacity: 1; }
   .finish { will-change: auto; }
+  .phone video.phone__screen { transition: none; }
 }
 @media (max-width: 1199px) {
   html, body { min-width: 0; }

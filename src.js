@@ -198,7 +198,16 @@ function initExclusiveVideoPlayback() {
     if (!frame) frame = requestAnimationFrame(update);
   }
 
-  videos.forEach((video) => video.pause());
+  videos.forEach((video) => {
+    video.pause();
+
+    const reveal = () => {
+      requestAnimationFrame(() => requestAnimationFrame(() => video.classList.add('is-ready')));
+    };
+
+    if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) reveal();
+    else video.addEventListener('loadeddata', reveal, { once: true });
+  });
   window.addEventListener('scroll', requestUpdate, { passive: true });
   window.addEventListener('resize', requestUpdate);
   document.addEventListener('visibilitychange', requestUpdate);
