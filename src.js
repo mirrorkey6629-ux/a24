@@ -1,15 +1,17 @@
 import './style.css';
 import { initFooterGame } from './footer-game.js';
 
+let gameStarted = false;
+
 function startGame() {
+  const game = document.querySelector('#footer-game');
+  if (gameStarted || !game || window.innerWidth < 1200 || game.getClientRects().length === 0) return;
   initFooterGame('#footer-game');
+  gameStarted = true;
 }
 
-if ('requestIdleCallback' in window) {
-  window.requestIdleCallback(startGame, { timeout: 2000 });
-} else {
-  window.setTimeout(startGame, 200);
-}
+startGame();
+window.addEventListener('resize', startGame);
 
 function initScrollCurve() {
   const elements = [...document.querySelectorAll('.case')];
