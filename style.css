@@ -51,7 +51,8 @@ a:hover { opacity: .55; }
   transform-origin: 160px 110%;
   transform: translateY(var(--curve-pull)) scale(calc(var(--curve-fit) * (1 - var(--curve-past) * var(--curve-recede)))) perspective(var(--curve-plane)) translateZ(calc(var(--curve-t) * -60px)) rotateX(calc(var(--curve-t) * var(--curve-tilt)));
   filter: blur(calc(var(--curve-t) * 20px));
-  will-change: transform, filter;
+  opacity: calc(1 - var(--curve-t) * .8);
+  will-change: transform, filter, opacity;
 }
 .copy { position: absolute; left: 360px; top: 8px; width: 423px; font-size: 14px; font-weight: 400; line-height: 18px; letter-spacing: -.14px; }
 .copy .eyebrow { margin: 0 0 4px; color: rgba(0,0,0,.4); font-family: 'Inter Regular', Inter, Arial, sans-serif; font-weight: 400; font-variation-settings: 'wght' 400; }
@@ -83,7 +84,7 @@ a:hover { opacity: .55; }
 .finish canvas { display: block; width: 650px; height: 150px; image-rendering: pixelated; }
 .finish :focus-visible { outline: 2px solid rgba(0,0,0,.4); outline-offset: 2px; border-radius: 8px; }
 @media (prefers-reduced-motion: reduce) {
-  .case { transform: none; filter: none; }
+  .case { transform: none; filter: none; opacity: 1; }
   .finish { will-change: auto; }
 }
 @media (max-width: 1439px) {
