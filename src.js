@@ -225,18 +225,41 @@ function initPosterCarousel() {
   let currentIndex = 0;
   let timer = 0;
   let isVisible = false;
+  let isAnimating = false;
+  let pointerId = null;
+  let pointerStartX = 0;
+  let pointerDeltaX = 0;
 
-  function showNext() {
+  function showSlide(nextIndex, direction = 1) {
+    if (isAnimating || nextIndex === currentIndex) return;
+    isAnimating = true;
+
     const current = slides[currentIndex];
-    currentIndex = (currentIndex + 1) % slides.length;
-    const next = slides[currentIndex];
+    const next = slides[nextIndex];
+
+    next.classList.remove('is-active', 'is-exiting', 'exit-right', 'from-left');
+    if (direction < 0) next.classList.add('from-left');
+    void next.offsetWidth;
 
     current.classList.remove('is-active');
     current.classList.add('is-exiting');
-    next.classList.remove('is-exiting');
+    if (direction < 0) current.classList.add('exit-right');
     next.classList.add('is-active');
+    next.classList.remove('from-left');
+    currentIndex = nextIndex;
 
-    window.setTimeout(() => current.classList.remove('is-exiting'), 950);
+    window.setTimeout(() => {
+      current.classList.remove('is-exiting', 'exit-right');
+      isAnimating = false;
+    }, 950);
+  }
+
+  function showNext() {
+    showSlide((currentIndex + 1) % slides.length, 1);
+  }
+
+  function showPrevious() {
+    showSlide((currentIndex - 1 + slides.length) % slides.length, -1);
   }
 
   function start() {
@@ -260,6 +283,45 @@ function initPosterCarousel() {
     if (document.hidden) stop();
     else start();
   });
+
+  carousel.addEventListener('dragstart', (event) => event.preventDefault());
+
+  carousel.addEventListener('pointerdown', (event) => {
+    if (isAnimating || event.button > 0) return;
+    pointerId = event.pointerId;
+    pointerStartX = event.clientX;
+    pointerDeltaX = 0;
+    stop();
+    carousel.classList.add('is-dragging');
+    carousel.setPointerCapture(pointerId);
+  });
+
+  carousel.addEventListener('pointermove', (event) => {
+    if (event.pointerId !== pointerId) return;
+    pointerDeltaX = Math.max(-90, Math.min(90, event.clientX - pointerStartX));
+    const current = slides[currentIndex];
+    current.style.transform = `translateX(${pointerDeltaX}px)`;
+    current.style.opacity = `${1 - Math.min(Math.abs(pointerDeltaX) / 180, .45)}`;
+  });
+
+  function finishSwipe(event) {
+    if (event.pointerId !== pointerId) return;
+    const current = slides[currentIndex];
+    const delta = pointerDeltaX;
+
+    pointerId = null;
+    pointerDeltaX = 0;
+    carousel.classList.remove('is-dragging');
+    current.style.removeProperty('transform');
+    current.style.removeProperty('opacity');
+
+    if (delta <= -36) showNext();
+    else if (delta >= 36) showPrevious();
+    start();
+  }
+
+  carousel.addEventListener('pointerup', finishSwipe);
+  carousel.addEventListener('pointercancel', finishSwipe);
 
   observer.observe(carousel);
 }
