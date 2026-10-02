@@ -18,7 +18,7 @@
   color: #000;
   background: #d0d0d0;
   font-synthesis: none;
-  --curve-tilt: 70deg;
+  --curve-tilt: 30deg;
   --curve-scale-angle: 14;
   --curve-depth: 4;
   --curve-falloff: 1.7;
