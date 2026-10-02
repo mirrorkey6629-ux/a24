@@ -16,7 +16,6 @@ function initScrollCurve() {
   if (!elements.length) return;
 
   const centerY = new Array(elements.length).fill(0);
-  const horizontalLean = new Array(elements.length).fill(0);
   const previousProgress = new Array(elements.length).fill(Number.NaN);
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   let frame = 0;
@@ -47,20 +46,10 @@ function initScrollCurve() {
     return value;
   }
 
-  function absoluteCenterX(element) {
-    let value = element.offsetWidth / 2;
-    for (let node = element; node; node = node.offsetParent) value += node.offsetLeft;
-    return value;
-  }
-
   function measure() {
-    const viewportCenterX = document.documentElement.clientWidth / 2;
     elements.forEach((element, index) => {
       centerY[index] = absoluteCenterY(element);
       element.style.setProperty('--curve-plane', `${(element.offsetHeight * settings.depthRatio).toFixed(2)}px`);
-      horizontalLean[index] = viewportCenterX > 0
-        ? Math.max(-1, Math.min(1, (absoluteCenterX(element) - viewportCenterX) / viewportCenterX))
-        : 0;
       previousProgress[index] = Number.NaN;
     });
   }
@@ -89,7 +78,6 @@ function initScrollCurve() {
       element.style.setProperty('--curve-t', curve.toFixed(4));
       element.style.setProperty('--curve-fit', fit.toFixed(5));
       element.style.setProperty('--curve-past', past.toFixed(4));
-      element.style.setProperty('--curve-lean', (horizontalLean[index] * curve).toFixed(4));
     });
   }
 
@@ -120,7 +108,7 @@ function initScrollCurve() {
     if (frame) cancelAnimationFrame(frame);
     frame = 0;
     elements.forEach((element) => {
-      ['--curve-t', '--curve-fit', '--curve-past', '--curve-lean', '--curve-plane']
+      ['--curve-t', '--curve-fit', '--curve-past', '--curve-plane']
         .forEach((property) => element.style.removeProperty(property));
     });
   }
