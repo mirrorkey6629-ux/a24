@@ -20,10 +20,10 @@
   font-synthesis: none;
   --curve-tilt: 7deg;
   --curve-scale-angle: 14;
-  --curve-depth: 1.45;
+  --curve-depth: 2.4;
   --curve-skew: 3deg;
   --curve-falloff: 1.7;
-  --curve-recede: .18;
+  --curve-recede: .08;
   --curve-recede-reach: .6;
 }
 @property --curve-t { syntax: '<number>'; inherits: false; initial-value: 0; }
