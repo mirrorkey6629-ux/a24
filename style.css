@@ -50,7 +50,7 @@ a:hover { opacity: .55; }
   width: 783px;
   transform-origin: 160px 110%;
   transform: translateY(var(--curve-pull)) scale(calc(var(--curve-fit) * (1 - var(--curve-past) * var(--curve-recede)))) perspective(var(--curve-plane)) translateZ(calc(var(--curve-t) * -60px)) rotateX(calc(var(--curve-t) * var(--curve-tilt)));
-  filter: blur(calc(var(--curve-t) * 20px));
+  filter: blur(calc(var(--curve-t) * 40px));
   opacity: calc(1 - var(--curve-t) * .8);
   will-change: transform, filter, opacity;
 }
