@@ -21,7 +21,7 @@
   --curve-tilt: 30deg;
   --curve-scale-angle: 14;
   --curve-depth: 4;
-  --curve-falloff: 1.7;
+  --curve-falloff: 1;
   --curve-recede: .03;
   --curve-recede-reach: .6;
 }
