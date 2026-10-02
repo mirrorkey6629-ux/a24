@@ -124,8 +124,6 @@ function initScrollCurve() {
   syncMotionPreference();
 }
 
-initScrollCurve();
-
 function initGameReveal() {
   const game = document.querySelector('#footer-game');
   if (!game) return;
