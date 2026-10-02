@@ -74,15 +74,18 @@ function initScrollCurve() {
     const maxProgress = 1 + settings.recedeReach;
 
     elements.forEach((element, index) => {
-      const progress = Math.max(0, Math.min(maxProgress, (viewportCenterY - centerY[index]) / halfViewport));
+      const rawProgress = (viewportCenterY - centerY[index]) / halfViewport;
+      const progress = Math.max(-maxProgress, Math.min(maxProgress, rawProgress));
       if (Math.abs(progress - previousProgress[index]) < .002) return;
       previousProgress[index] = progress;
 
-      const curve = Math.min(progress, 1) ** settings.falloff;
+      const direction = Math.sign(progress);
+      const absoluteProgress = Math.abs(progress);
+      const curve = direction * (Math.min(absoluteProgress, 1) ** settings.falloff);
       const past = settings.recedeReach > 0
-        ? Math.min(Math.max(progress - 1, 0) / settings.recedeReach, 1)
+        ? Math.min(Math.max(absoluteProgress - 1, 0) / settings.recedeReach, 1)
         : 0;
-      const depthLoss = Math.abs(Math.sin(curve * settings.scaleAngle * Math.PI / 180)) / (2 * settings.depthRatio);
+      const depthLoss = Math.abs(Math.sin(Math.abs(curve) * settings.scaleAngle * Math.PI / 180)) / (2 * settings.depthRatio);
       const fit = 1 - Math.min(depthLoss, .8);
 
       element.style.setProperty('--curve-t', curve.toFixed(4));
