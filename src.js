@@ -153,3 +153,56 @@ function initGameReveal() {
 }
 
 initGameReveal();
+
+function initExclusiveVideoPlayback() {
+  const videos = [...document.querySelectorAll('.phone video')];
+  if (!videos.length) return;
+
+  let frame = 0;
+  let activeVideo = null;
+
+  function update() {
+    frame = 0;
+
+    if (document.hidden) {
+      videos.forEach((video) => video.pause());
+      activeVideo = null;
+      return;
+    }
+
+    let nextVideo = null;
+    let largestVisibleArea = 0;
+
+    videos.forEach((video) => {
+      const rect = video.getBoundingClientRect();
+      const visibleWidth = Math.max(0, Math.min(rect.right, window.innerWidth) - Math.max(rect.left, 0));
+      const visibleHeight = Math.max(0, Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0));
+      const visibleArea = visibleWidth * visibleHeight;
+
+      if (visibleArea > largestVisibleArea) {
+        largestVisibleArea = visibleArea;
+        nextVideo = video;
+      }
+    });
+
+    if (nextVideo === activeVideo) return;
+    activeVideo = nextVideo;
+
+    videos.forEach((video) => {
+      if (video === activeVideo) video.play().catch(() => {});
+      else video.pause();
+    });
+  }
+
+  function requestUpdate() {
+    if (!frame) frame = requestAnimationFrame(update);
+  }
+
+  videos.forEach((video) => video.pause());
+  window.addEventListener('scroll', requestUpdate, { passive: true });
+  window.addEventListener('resize', requestUpdate);
+  document.addEventListener('visibilitychange', requestUpdate);
+  update();
+}
+
+initExclusiveVideoPlayback();
