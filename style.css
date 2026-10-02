@@ -48,9 +48,10 @@ a:hover { opacity: .55; }
   left: 517px;
   top: var(--top);
   width: 783px;
-  transform-origin: center center;
-  transform: scale(calc(var(--curve-fit) * (1 - var(--curve-past) * var(--curve-recede)))) skewX(calc(var(--curve-lean) * var(--curve-skew))) perspective(var(--curve-plane)) rotateX(calc(var(--curve-t) * var(--curve-tilt)));
-  will-change: transform;
+  transform-origin: 50% 110%;
+  transform: scale(calc(var(--curve-fit) * (1 - var(--curve-past) * var(--curve-recede)))) skewX(calc(var(--curve-lean) * var(--curve-skew))) perspective(var(--curve-plane)) translateZ(calc(var(--curve-t) * -60px)) rotateX(calc(var(--curve-t) * var(--curve-tilt)));
+  filter: brightness(calc(1 - var(--curve-t) * .1)) contrast(calc(1 - var(--curve-t) * .05));
+  will-change: transform, filter;
 }
 .copy { position: absolute; left: 360px; top: 8px; width: 423px; font-size: 14px; font-weight: 400; line-height: 18px; letter-spacing: -.14px; }
 .copy .eyebrow { margin: 0 0 4px; color: rgba(0,0,0,.4); font-family: 'Inter Regular', Inter, Arial, sans-serif; font-weight: 400; font-variation-settings: 'wght' 400; }
@@ -69,7 +70,7 @@ a:hover { opacity: .55; }
 .finish canvas { display: block; width: 650px; height: 150px; image-rendering: pixelated; }
 .finish :focus-visible { outline: 2px solid rgba(0,0,0,.4); outline-offset: 2px; border-radius: 8px; }
 @media (prefers-reduced-motion: reduce) {
-  .case { transform: none; }
+  .case { transform: none; filter: none; }
 }
 @media (max-width: 1439px) {
   .portfolio { margin-left: 0; margin-right: 0; }
