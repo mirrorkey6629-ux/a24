@@ -67,9 +67,11 @@ a:hover { opacity: .55; }
 .phone video.phone__screen.is-ready { opacity: 1; }
 .phone__frame { position: absolute; z-index: 1; top: -33px; left: -111px; width: 547px; height: 695px; max-width: none; }
 .case--wide, .case--poster { height: 446px; }
-.case--poster { top: calc(var(--top) + 40px); }
-.wide-image { width: 320px; height: 180px; border-radius: 10px; object-fit: cover; display: block; }
-.wide-image--small-radius { height: auto; border-radius: 12px; }
+.case--wide:nth-of-type(6) { top: calc(var(--top) + 40px); }
+.case--poster { top: calc(var(--top) + 80px); }
+.case--wide > a { display: block; width: 320px; border-radius: 20px; overflow: hidden; }
+.wide-image { display: block; width: 320px; height: auto; border-radius: 0; }
+.wide-image--small-radius { height: auto; }
 .case--wide .copy, .case--poster .copy { top: 0; }
 .poster-carousel { position: relative; width: 320px; height: 446px; overflow: hidden; }
 .poster-slide { position: absolute; inset: 0; z-index: 1; display: block; width: 100%; height: 100%; object-fit: cover; opacity: 0; transform: translateX(24px); transition: transform .9s cubic-bezier(.22,.75,.25,1), opacity .9s ease; will-change: transform, opacity; }
