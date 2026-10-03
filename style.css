@@ -73,7 +73,7 @@ a:hover { opacity: .55; }
 .case--wide, .case--poster { height: 446px; }
 .case--wide:nth-of-type(6) { top: calc(var(--top) + 388px); }
 .case--poster { top: calc(var(--top) + 616px); }
-.case--wide > a { display: block; width: 320px; border-radius: 8px; overflow: hidden; }
+.case--wide > a { display: block; width: 320px; border-radius: 20px; overflow: hidden; }
 .wide-image { display: block; width: 320px; height: auto; border-radius: 0; }
 .wide-image--small-radius { height: auto; }
 .case--wide .copy, .case--poster .copy { top: 0; }
