@@ -36,7 +36,7 @@ html, body { margin: 0; min-height: 100%; background: #d0d0d0; }
 a { color: inherit; text-decoration: none; transition: opacity .3s ease; }
 a:hover { opacity: .55; }
 .unsupported { display: none; }
-.portfolio { position: relative; width: 100%; min-width: 1200px; height: 5271px; margin: 0 auto; background: #d0d0d0; overflow: hidden; }
+.portfolio { position: relative; width: 100%; min-width: 1200px; height: 4983px; margin: 0 auto; background: #d0d0d0; overflow: hidden; }
 .profile { position: fixed; z-index: 10; left: calc(50% - 580px); top: 40px; width: 317px; font-size: 14px; font-weight: 400; line-height: 18px; letter-spacing: -.14px; }
 .profile__avatar { display: block; width: 100px; height: 100px; margin-bottom: 20px; }
 .profile__intro { margin: 0 0 22px; }
@@ -71,8 +71,8 @@ a:hover { opacity: .55; }
 .phone video.phone__screen.is-ready { opacity: 1; }
 .phone__frame { position: absolute; z-index: 1; top: -33px; left: -111px; width: 547px; height: 695px; max-width: none; }
 .case--wide, .case--poster { height: 446px; }
-.case--wide:nth-of-type(6) { top: calc(var(--top) + 532px); }
-.case--poster { top: calc(var(--top) + 904px); }
+.case--wide:nth-of-type(6) { top: calc(var(--top) + 388px); }
+.case--poster { top: calc(var(--top) + 616px); }
 .case--wide > a { display: block; width: 320px; border-radius: 8px; overflow: hidden; }
 .wide-image { display: block; width: 320px; height: auto; border-radius: 0; }
 .wide-image--small-radius { height: auto; }
