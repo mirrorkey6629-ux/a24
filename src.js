@@ -3,6 +3,17 @@ import { initFooterGame } from './footer-game.js';
 
 let gameStarted = false;
 
+function normalizeParagraphPunctuation() {
+  const paragraphs = document.querySelectorAll('.profile__intro, .copy p:not(.eyebrow)');
+
+  paragraphs.forEach((paragraph) => {
+    const text = paragraph.textContent.trim();
+    if (text && !/[.!?…]$/.test(text)) paragraph.append('.');
+  });
+}
+
+normalizeParagraphPunctuation();
+
 function startGame() {
   const game = document.querySelector('#footer-game');
   if (gameStarted || !game || window.innerWidth < 1200 || game.getClientRects().length === 0) return;
