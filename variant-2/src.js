@@ -1,0 +1,512 @@
+import './style.css';
+import { initFooterGame } from './footer-game.js';
+
+let gameStarted = false;
+
+function normalizeParagraphPunctuation() {
+  const paragraphs = document.querySelectorAll('.profile__intro, .copy p:not(.eyebrow)');
+
+  paragraphs.forEach((paragraph) => {
+    const text = paragraph.textContent.trim();
+    if (text && !/[.!?…]$/.test(text)) paragraph.append('.');
+  });
+}
+
+normalizeParagraphPunctuation();
+
+function initProjectTags() {
+  document.querySelectorAll('.case:not(.case--poster)').forEach((project) => {
+    const eyebrow = project.querySelector('.eyebrow');
+    const heading = project.querySelector('h2');
+    if (!eyebrow || !heading) return;
+
+    const [brand, year] = eyebrow.textContent.split(',').map((part) => part.trim());
+    if (brand && brand !== 'Звук' && !heading.textContent.includes(brand)) heading.append(` ${brand}`);
+
+    const tags = document.createElement('div');
+    tags.className = 'tags';
+    const values = project.classList.contains('case--phone')
+      ? [year, 'iOS', 'Android']
+      : [year, 'Web'];
+
+    values.filter(Boolean).forEach((value) => {
+      const tag = document.createElement('span');
+      tag.textContent = value;
+      tags.append(tag);
+    });
+
+    heading.before(tags);
+    eyebrow.remove();
+  });
+}
+
+initProjectTags();
+
+const englishProjects = [
+  {
+    title: 'Main screen of the app',
+    paragraphs: [
+      'Before the redesign, the home screen featured a personalized radio stream that only 30% of users listened to. Everyone else played their own music or playlists based on selections or artists.',
+      'As a result, the home screen was useful to only a small portion of the service’s audience, while everyone else had to navigate through the app to find what they wanted to play.',
+      'We wanted to let users instantly play what they were most likely to listen to at that particular time, directly from the home screen, with a brief explanation of why the content was being recommended.',
+      'This would reduce the time from opening the app to starting playback and increase ALT (average listening time) by serving more relevant content.',
+    ],
+  },
+  {
+    title: 'Track migration',
+    paragraphs: [
+      'After releasing the first version of the migration flow, we found that most users skipped the step of adding tracks to Favorites because it appeared after playlist migration.',
+      'This was critical because 90% of users transferred their “Liked Songs” playlist from Yandex Music and expected the tracks to be added to the right place automatically.',
+      'We moved the Add to Favorites step to the start screen, added a paste-link button, and refreshed the visual design to match the new style.',
+    ],
+  },
+  {
+    title: 'Music portrait',
+    paragraphs: [
+      'This was one of those projects that never made it to production and remained a concept after business priorities changed.',
+      'We wanted to create a viral page with listening statistics that would be fun to share with friends, explore your musical taste, and see how the service perceives you.',
+      'It also allowed users to tune their preferences by specifying what they liked and disliked, giving them direct influence over recommendations and helping them personalize Zvuk.',
+    ],
+  },
+  {
+    title: 'Music player',
+    paragraphs: [
+      'When we started, the player was deeply rooted in legacy code, and there were no design layouts at all. We had ambitious plans and several product hypotheses, but they were blocked by the player’s rigid layout and the need to reverse-engineer how everything worked each time.',
+      'In the first stage, we made the layout more flexible, added an action bar with quick controls, and cleaned up the rough parts.',
+      'In the second stage, we polished the visuals and added interactive Lottie animations for icons, track-switching animations, and interactions with the player’s content.',
+      'Finally, we developed a second layer of the player that helps users discover similar content in the moment and supports side scenarios such as buying concert tickets and discovering artists.',
+    ],
+  },
+  {
+    title: 'Track selection mode',
+    paragraphs: [
+      'Users wanted to select multiple tracks in a playlist so they could move them to other playlists, delete them, or download them in bulk.',
+      'We chose the more complex approach: a dedicated screen state with track selection and animated transitions of every element into and out of selection mode.',
+      'We had to sell this solution to both product and engineering because it was not the easiest to implement. As a bonus, the team began requesting animation and polished state transitions in every project that followed—they saw how much better it felt than clunky sliding bottom sheets.',
+    ],
+  },
+  {
+    title: 'Homepage',
+    paragraphs: [
+      'This was a highly complex task: communicate the brand, showcase the products, and refine the visual style.',
+      'Our broader goal was to create an engaging page that would give a strong first impression of the company, explain the value of online education and the learning format, and immediately present the company’s core product matrix instead of the collection of banners it had been before.',
+      'We separately briefed a photographer and organized a photoshoot with our students so their portraits could appear on the homepage and communicate that Skillbox is not merely about courses—it is about people and how online education changes their lives.',
+    ],
+  },
+  {
+    title: 'Landing page builder',
+    paragraphs: [
+      'This was a mammoth system that had existed for several years and accumulated a large number of unnecessary blocks. We first needed to audit every block available in the builder and decide which ones were useful and which were not.',
+      'We then refined the visuals and meaning of the core blocks, developed a new version, and migrated the first ten landing pages to it.',
+      'The work required close collaboration with marketing, C-level stakeholders, editorial, and communication design. Landing pages were the company’s primary sales tool, there were many stakeholders, and the cost of a mistake was high.',
+    ],
+  },
+  {
+    title: 'Not work-related',
+    paragraphs: [
+      'In my free time, I enjoy drawing posters, playful graphics, and charismatic characters with expressive eyes.',
+      'I also love podcasts about history and physics, renovating, building furniture, and traveling.',
+      'Lately, like everyone else, I have been riding the vibe-coding wave. I built a travel-planning website with an interactive Google map, a backend, and simultaneous trip editing for several users to make planning our trip to Japan easier.',
+    ],
+  },
+];
+
+function initLanguageSwitcher() {
+  const toggle = document.querySelector('[data-language-toggle]');
+  if (!toggle) return;
+
+  const intro = document.querySelector('.profile__intro');
+  const experienceItems = [...document.querySelectorAll('.experience__item')];
+  const projects = [...document.querySelectorAll('.case')];
+  const unsupported = document.querySelector('.unsupported p');
+  const metaDescription = document.querySelector('meta[name="description"]');
+  const columnLabels = [...document.querySelectorAll('.column-label:not([data-language-toggle])')];
+  const navItems = [...document.querySelectorAll('.profile__nav-item')];
+
+  const russianState = {
+    intro: intro?.innerHTML ?? '',
+    experience: experienceItems.map((item) => ({
+      name: item.querySelector('h2')?.innerHTML ?? '',
+      duration: item.querySelector('span')?.innerHTML ?? '',
+      description: item.querySelector('p')?.innerHTML ?? '',
+    })),
+    projects: projects.map((project) => ({
+      title: project.querySelector('.copy h2')?.innerHTML ?? '',
+      paragraphs: [...project.querySelectorAll('.copy > p:not(.eyebrow)')].map((paragraph) => paragraph.innerHTML),
+    })),
+    unsupported: unsupported?.innerHTML ?? '',
+  };
+
+  const experienceEnglish = [
+    { name: 'Zvuk', duration: '2 years', description: 'A streaming service with music, audiobooks, and podcasts. My role is to design core mobile app experiences, develop concepts, and occasionally contribute to visual design.' },
+    { name: 'Skillbox', duration: '5 years', description: 'An online education platform with 300+ courses. I led a team of marketing designers and designed the website’s key sections.' },
+  ];
+
+  function protectEnglishShortWords(root) {
+    if (!root) return;
+    const shortWords = /\b(a|an|the|and|or|but|nor|so|yet|as|at|by|for|from|in|into|of|on|onto|over|per|to|up|via|with|within|without|because|if|than|that|while)\s+/gi;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    const textNodes = [];
+    while (walker.nextNode()) textNodes.push(walker.currentNode);
+    textNodes.forEach((node) => {
+      node.nodeValue = node.nodeValue.replace(shortWords, '$1\u00a0');
+    });
+  }
+
+  function setProject(project, translation, useEnglish) {
+    const title = project.querySelector('.copy h2');
+    const paragraphs = [...project.querySelectorAll('.copy > p:not(.eyebrow)')];
+    if (title) title[useEnglish ? 'textContent' : 'innerHTML'] = translation.title;
+    paragraphs.forEach((paragraph, index) => {
+      const value = translation.paragraphs[index];
+      if (value !== undefined) paragraph[useEnglish ? 'textContent' : 'innerHTML'] = value;
+    });
+  }
+
+  function applyLanguage(language) {
+    const useEnglish = language === 'en';
+    document.documentElement.lang = useEnglish ? 'en' : 'ru';
+    document.title = useEnglish ? 'Anya Fendik — Product Designer' : 'Анна Фендик — продуктовый дизайнер';
+    if (metaDescription) metaDescription.content = useEnglish
+      ? 'Portfolio of product designer Anya Fendik'
+      : 'Портфолио продуктового дизайнера Анны Фендик';
+
+    if (intro) intro[useEnglish ? 'textContent' : 'innerHTML'] = useEnglish
+      ? 'Hi, I’m Anya, a product designer based in Moscow. I love creating impactful experiences, obsessing over details, thinking beyond the immediate task, and working as part of a team.'
+      : russianState.intro;
+
+    experienceItems.forEach((item, index) => {
+      const translation = useEnglish ? experienceEnglish[index] : russianState.experience[index];
+      const name = item.querySelector('h2');
+      const duration = item.querySelector('span');
+      const description = item.querySelector('p');
+      if (name) name[useEnglish ? 'textContent' : 'innerHTML'] = translation.name;
+      if (duration) duration[useEnglish ? 'textContent' : 'innerHTML'] = translation.duration;
+      if (description) description[useEnglish ? 'textContent' : 'innerHTML'] = translation.description;
+    });
+
+    projects.forEach((project, index) => {
+      setProject(project, useEnglish ? englishProjects[index] : russianState.projects[index], useEnglish);
+    });
+
+    const navTexts = useEnglish
+      ? ['Telegram', 'Mail', 'CV']
+      : ['Телеграм', 'Почта', 'Резюме'];
+    navItems.forEach((item, index) => {
+      item.textContent = navTexts[index];
+    });
+
+    const labelTexts = useEnglish
+      ? ['ABOUT', 'LOOK', 'READ']
+      : ['ОБО МНЕ', 'ПОСМОТРЕТЬ', 'ПОЧИТАТЬ'];
+    columnLabels.forEach((label, index) => {
+      label.textContent = labelTexts[index];
+    });
+    if (unsupported) unsupported[useEnglish ? 'textContent' : 'innerHTML'] = useEnglish
+      ? 'Sorry, this screen size is not supported yet.'
+      : russianState.unsupported;
+
+    document.querySelectorAll('.phone video').forEach((video) => {
+      video.setAttribute('aria-label', useEnglish ? 'Product demo video' : 'Демонстрация проекта');
+    });
+    document.querySelectorAll('.case--wide > a').forEach((link) => {
+      link.setAttribute('aria-label', useEnglish ? 'Open the project in a new tab' : 'Открыть проект в новой вкладке');
+    });
+    toggle.setAttribute('aria-label', useEnglish ? 'Switch language to Russian' : 'Переключить язык на английский');
+    if (useEnglish) {
+      document.querySelectorAll('.profile__intro, .experience, .copy, .unsupported p')
+        .forEach(protectEnglishShortWords);
+    }
+    localStorage.setItem('portfolio-language', language);
+  }
+
+  let currentLanguage = localStorage.getItem('portfolio-language') === 'en' ? 'en' : 'ru';
+  toggle.addEventListener('click', () => {
+    currentLanguage = currentLanguage === 'ru' ? 'en' : 'ru';
+    applyLanguage(currentLanguage);
+  });
+  applyLanguage(currentLanguage);
+}
+
+initLanguageSwitcher();
+
+function startGame() {
+  const game = document.querySelector('#footer-game');
+  if (gameStarted || !game || window.innerWidth < 1200 || game.getClientRects().length === 0) return;
+  initFooterGame('#footer-game');
+  gameStarted = true;
+}
+
+startGame();
+window.addEventListener('resize', startGame);
+
+function initScrollCurve() {
+  const elements = [...document.querySelectorAll('.case')];
+  if (!elements.length) return;
+
+  const centerY = new Array(elements.length).fill(0);
+  const previousProgress = new Array(elements.length).fill(Number.NaN);
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let frame = 0;
+  let resizeObserver;
+
+  function readSettings() {
+    const styles = getComputedStyle(document.documentElement);
+    const number = (name) => Number.parseFloat(styles.getPropertyValue(name));
+    const tilt = number('--curve-tilt');
+    const scaleAngle = number('--curve-scale-angle');
+    const depthRatio = number('--curve-depth');
+    const falloff = number('--curve-falloff');
+    const recedeReach = number('--curve-recede-reach');
+    return {
+      tilt: Number.isFinite(tilt) ? tilt : 0,
+      scaleAngle: Number.isFinite(scaleAngle) ? scaleAngle : 14,
+      depthRatio: Number.isFinite(depthRatio) && depthRatio > 0 ? depthRatio : 100000,
+      falloff: Number.isFinite(falloff) && falloff > 0 ? falloff : 1,
+      recedeReach: Number.isFinite(recedeReach) && recedeReach > 0 ? recedeReach : 0,
+    };
+  }
+
+  let settings = readSettings();
+
+  function absoluteCenterY(element) {
+    let value = element.offsetHeight / 2;
+    for (let node = element; node; node = node.offsetParent) value += node.offsetTop;
+    return value;
+  }
+
+  function measure() {
+    elements.forEach((element, index) => {
+      centerY[index] = absoluteCenterY(element);
+      element.style.setProperty('--curve-plane', `${(element.offsetHeight * settings.depthRatio).toFixed(2)}px`);
+      previousProgress[index] = Number.NaN;
+    });
+  }
+
+  function update() {
+    frame = 0;
+    const viewportHeight = window.innerHeight;
+    if (!viewportHeight) return;
+    const effectDistance = viewportHeight * .65;
+    const maxProgress = 1 + settings.recedeReach;
+
+    elements.forEach((element, index) => {
+      const effectStartY = window.scrollY + element.offsetHeight / 6;
+      const progress = Math.max(0, Math.min(maxProgress, (effectStartY - centerY[index]) / effectDistance));
+      if (Math.abs(progress - previousProgress[index]) < .002) return;
+      previousProgress[index] = progress;
+
+      const curve = Math.min(progress, 1) ** settings.falloff;
+      const past = settings.recedeReach > 0
+        ? Math.min(Math.max(progress - 1, 0) / settings.recedeReach, 1)
+        : 0;
+      const depthLoss = Math.abs(Math.sin(curve * settings.scaleAngle * Math.PI / 180)) / (2 * settings.depthRatio);
+      const fit = 1 - Math.min(depthLoss, .8);
+      const pullProgress = Math.max(0, Math.min(1, (progress - .5) / .5));
+      const pull = -72 * pullProgress ** 1.35;
+
+      element.style.setProperty('--curve-t', curve.toFixed(4));
+      element.style.setProperty('--curve-fit', fit.toFixed(5));
+      element.style.setProperty('--curve-past', past.toFixed(4));
+      element.style.setProperty('--curve-pull', `${pull.toFixed(2)}px`);
+    });
+  }
+
+  function requestUpdate() {
+    if (!frame) frame = requestAnimationFrame(update);
+  }
+
+  function handleResize() {
+    settings = readSettings();
+    measure();
+    requestUpdate();
+  }
+
+  function start() {
+    handleResize();
+    window.addEventListener('scroll', requestUpdate, { passive: true });
+    window.addEventListener('resize', handleResize);
+    if ('ResizeObserver' in window) {
+      resizeObserver = new ResizeObserver(handleResize);
+      resizeObserver.observe(document.documentElement);
+    }
+  }
+
+  function stop() {
+    window.removeEventListener('scroll', requestUpdate);
+    window.removeEventListener('resize', handleResize);
+    resizeObserver?.disconnect();
+    if (frame) cancelAnimationFrame(frame);
+    frame = 0;
+    elements.forEach((element) => {
+      ['--curve-t', '--curve-fit', '--curve-past', '--curve-pull', '--curve-plane']
+        .forEach((property) => element.style.removeProperty(property));
+    });
+  }
+
+  function syncMotionPreference() {
+    if (reducedMotion.matches) stop();
+    else start();
+  }
+
+  reducedMotion.addEventListener('change', syncMotionPreference);
+  syncMotionPreference();
+}
+
+function initGameReveal() {
+  const game = document.querySelector('#footer-game');
+  if (!game) return;
+
+  let frame = 0;
+
+  function update() {
+    frame = 0;
+    const maxScroll = Math.max(document.documentElement.scrollHeight - window.innerHeight, 0);
+    const revealDistance = Math.min(320, maxScroll);
+    const revealStart = maxScroll - revealDistance;
+    const progress = revealDistance > 0
+      ? Math.max(0, Math.min(1, (window.scrollY - revealStart) / revealDistance))
+      : 1;
+
+    game.style.setProperty('--game-offset', `${((1 - progress) * 100).toFixed(2)}%`);
+    game.style.pointerEvents = progress > .98 ? 'auto' : 'none';
+  }
+
+  function requestUpdate() {
+    if (!frame) frame = requestAnimationFrame(update);
+  }
+
+  window.addEventListener('scroll', requestUpdate, { passive: true });
+  window.addEventListener('resize', requestUpdate);
+  update();
+}
+
+initGameReveal();
+
+function initExclusiveVideoPlayback() {
+  const videos = [...document.querySelectorAll('.phone video')];
+  if (!videos.length) return;
+
+  let frame = 0;
+  let activeVideo = null;
+
+  function update() {
+    frame = 0;
+
+    if (document.hidden) {
+      videos.forEach((video) => video.pause());
+      activeVideo = null;
+      return;
+    }
+
+    let nextVideo = null;
+    let largestVisibleArea = 0;
+
+    videos.forEach((video) => {
+      const rect = video.getBoundingClientRect();
+      const visibleWidth = Math.max(0, Math.min(rect.right, window.innerWidth) - Math.max(rect.left, 0));
+      const visibleHeight = Math.max(0, Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0));
+      const visibleArea = visibleWidth * visibleHeight;
+
+      if (visibleArea > largestVisibleArea) {
+        largestVisibleArea = visibleArea;
+        nextVideo = video;
+      }
+    });
+
+    if (nextVideo === activeVideo) return;
+    activeVideo = nextVideo;
+
+    videos.forEach((video) => {
+      if (video === activeVideo) video.play().catch(() => {});
+      else video.pause();
+    });
+  }
+
+  function requestUpdate() {
+    if (!frame) frame = requestAnimationFrame(update);
+  }
+
+  videos.forEach((video) => {
+    video.pause();
+
+    const reveal = () => {
+      requestAnimationFrame(() => requestAnimationFrame(() => video.classList.add('is-ready')));
+    };
+
+    if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) reveal();
+    else video.addEventListener('loadeddata', reveal, { once: true });
+  });
+  window.addEventListener('scroll', requestUpdate, { passive: true });
+  window.addEventListener('resize', requestUpdate);
+  document.addEventListener('visibilitychange', requestUpdate);
+  update();
+}
+
+initExclusiveVideoPlayback();
+
+function initPosterCarousel() {
+  const carousel = document.querySelector('.poster-carousel');
+  const slides = carousel ? [...carousel.querySelectorAll('.poster-slide')] : [];
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (!carousel || slides.length < 2 || reducedMotion.matches) return;
+
+  let currentIndex = 0;
+  let timer = 0;
+  let isVisible = false;
+  let isAnimating = false;
+
+  function showSlide(nextIndex, direction = 1) {
+    if (isAnimating || nextIndex === currentIndex) return;
+    isAnimating = true;
+
+    const current = slides[currentIndex];
+    const next = slides[nextIndex];
+
+    next.classList.remove('is-active', 'is-exiting', 'exit-right', 'from-left');
+    if (direction < 0) next.classList.add('from-left');
+    void next.offsetWidth;
+
+    current.classList.remove('is-active');
+    current.classList.add('is-exiting');
+    if (direction < 0) current.classList.add('exit-right');
+    next.classList.add('is-active');
+    next.classList.remove('from-left');
+    currentIndex = nextIndex;
+
+    window.setTimeout(() => {
+      current.classList.remove('is-exiting', 'exit-right');
+      isAnimating = false;
+    }, 950);
+  }
+
+  function showNext() {
+    showSlide((currentIndex + 1) % slides.length, 1);
+  }
+
+  function start() {
+    if (timer || !isVisible || document.hidden) return;
+    timer = window.setInterval(showNext, 5000);
+  }
+
+  function stop() {
+    if (!timer) return;
+    window.clearInterval(timer);
+    timer = 0;
+  }
+
+  const observer = new IntersectionObserver(([entry]) => {
+    isVisible = entry.isIntersecting;
+    if (isVisible) start();
+    else stop();
+  }, { threshold: .15 });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stop();
+    else start();
+  });
+
+  observer.observe(carousel);
+}
+
+initPosterCarousel();

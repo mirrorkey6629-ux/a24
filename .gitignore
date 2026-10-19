@@ -1,5 +1,5 @@
 node_modules/
+/variant-2/node_modules
 dist/
 .pnpm-store/
 .DS_Store
-
