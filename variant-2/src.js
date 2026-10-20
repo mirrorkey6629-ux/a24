@@ -116,6 +116,7 @@ function initLanguageSwitcher() {
   if (!toggle) return;
 
   const intro = document.querySelector('.profile__intro');
+  const footerIntro = document.querySelector('.footer-intro');
   const experienceItems = [...document.querySelectorAll('.experience__item')];
   const projects = [...document.querySelectorAll('.case')];
   const unsupported = document.querySelector('.unsupported p');
@@ -125,6 +126,7 @@ function initLanguageSwitcher() {
 
   const russianState = {
     intro: intro?.innerHTML ?? '',
+    footerIntro: footerIntro?.innerHTML ?? '',
     experience: experienceItems.map((item) => ({
       name: item.querySelector('h2')?.innerHTML ?? '',
       duration: item.querySelector('span')?.innerHTML ?? '',
@@ -141,6 +143,8 @@ function initLanguageSwitcher() {
     { name: 'Zvuk', duration: '2 years', description: 'A streaming service with music, audiobooks, and podcasts. My role is to design core mobile app experiences, develop concepts, and occasionally contribute to visual design.' },
     { name: 'Skillbox', duration: '5 years', description: 'An online education platform with 300+ courses. I led a team of marketing designers and designed the website’s key sections.' },
   ];
+
+  const footerIntroEnglish = 'In&nbsp;my free time, I&nbsp;enjoy drawing posters, playful graphics,<br>and&nbsp;charismatic characters with&nbsp;expressive eyes. I&nbsp;also love podcasts about history and&nbsp;physics, renovating, building furniture, and&nbsp;traveling.';
 
   function protectEnglishShortWords(root) {
     if (!root) return;
@@ -174,6 +178,9 @@ function initLanguageSwitcher() {
     if (intro) intro[useEnglish ? 'textContent' : 'innerHTML'] = useEnglish
       ? 'Hi, I’m Anya, a product designer based in Moscow. I love creating impactful experiences, obsessing over details, thinking beyond the immediate task, and working as part of a team.'
       : russianState.intro;
+    if (footerIntro) footerIntro.innerHTML = useEnglish
+      ? footerIntroEnglish
+      : russianState.footerIntro;
 
     experienceItems.forEach((item, index) => {
       const translation = useEnglish ? experienceEnglish[index] : russianState.experience[index];
@@ -214,7 +221,7 @@ function initLanguageSwitcher() {
     });
     toggle.setAttribute('aria-label', useEnglish ? 'Switch language to Russian' : 'Переключить язык на английский');
     if (useEnglish) {
-      document.querySelectorAll('.profile__intro, .experience, .copy, .unsupported p')
+      document.querySelectorAll('.profile__intro, .experience, .copy, .footer-intro, .unsupported p')
         .forEach(protectEnglishShortWords);
     }
     localStorage.setItem('portfolio-language', language);
@@ -444,6 +451,158 @@ function initExclusiveVideoPlayback() {
 }
 
 initExclusiveVideoPlayback();
+
+function initProjectSheets() {
+  const projects = [...document.querySelectorAll('.portfolio--variant-two > .case--home, .portfolio--variant-two > .case--player, .portfolio--variant-two > .case--migration')];
+  if (!projects.length) return;
+
+  const backdrop = document.createElement('div');
+  backdrop.className = 'project-sheet-backdrop';
+  backdrop.hidden = true;
+  backdrop.innerHTML = `
+    <div class="project-sheet-backdrop__title" id="project-sheet-title"></div>
+    <button class="project-sheet-backdrop__close" type="button" aria-label="Закрыть проект"><span aria-hidden="true"></span></button>`;
+
+  const sheet = document.createElement('section');
+  sheet.className = 'project-sheet';
+  sheet.hidden = true;
+  sheet.setAttribute('role', 'dialog');
+  sheet.setAttribute('aria-modal', 'true');
+  sheet.setAttribute('aria-labelledby', 'project-sheet-title');
+  sheet.setAttribute('tabindex', '-1');
+  sheet.innerHTML = `
+    <div class="project-sheet__content">
+      <div class="project-sheet__media"></div>
+    </div>`;
+
+  document.body.append(backdrop, sheet);
+
+  const title = backdrop.querySelector('.project-sheet-backdrop__title');
+  const media = sheet.querySelector('.project-sheet__media');
+  const closeButton = backdrop.querySelector('.project-sheet-backdrop__close');
+  let trigger = null;
+
+  function createMedia(project) {
+    const galleryConfig = project.classList.contains('case--home')
+      ? { folder: 'companion', count: 9, wide: [1, 4, 7] }
+      : project.classList.contains('case--player')
+        ? { folder: 'maxiplayer', count: 4, order: [3, 2, 1, 4], wide: [1, 4] }
+      : project.classList.contains('case--migration')
+        ? { folder: 'migration', count: 3, wide: [1] }
+        : null;
+
+    if (galleryConfig) {
+      const gallery = document.createElement('div');
+      gallery.className = 'project-sheet__gallery';
+
+      const imageOrder = galleryConfig.order ?? Array.from({ length: galleryConfig.count }, (_, index) => index + 1);
+
+      for (const index of imageOrder) {
+        const image = document.createElement('img');
+        image.src = `/assets/${galleryConfig.folder}/${index}.png`;
+        image.alt = '';
+        image.loading = 'lazy';
+        if (galleryConfig.wide.includes(index)) image.classList.add('project-sheet__gallery-wide');
+        gallery.append(image);
+      }
+
+      return gallery;
+    }
+
+    const video = project.querySelector('.phone__screen');
+    const frame = project.querySelector('.phone__frame');
+    const image = project.querySelector('.wide-image');
+
+    if (video && frame) {
+      const phone = document.createElement('div');
+      phone.className = 'project-sheet__phone';
+
+      const videoCopy = document.createElement('video');
+      videoCopy.src = video.currentSrc || video.src;
+      videoCopy.muted = true;
+      videoCopy.loop = true;
+      videoCopy.playsInline = true;
+      videoCopy.autoplay = true;
+
+      const frameCopy = document.createElement('img');
+      frameCopy.src = frame.src;
+      frameCopy.alt = '';
+
+      phone.append(videoCopy, frameCopy);
+      return phone;
+    }
+
+    if (image) {
+      const imageCopy = image.cloneNode(true);
+      imageCopy.className = 'project-sheet__image';
+      return imageCopy;
+    }
+
+    return document.createElement('div');
+  }
+
+  function open(project, source) {
+    trigger = source;
+    sheet.scrollTop = 0;
+    title.textContent = project.querySelector('.copy h2')?.textContent || '';
+    media.replaceChildren(createMedia(project));
+    backdrop.hidden = false;
+    sheet.hidden = false;
+    backdrop.classList.remove('is-closing');
+    document.body.classList.add('project-sheet-open');
+    requestAnimationFrame(() => {
+      backdrop.classList.add('is-open');
+      sheet.classList.add('is-open');
+      closeButton.focus({ preventScroll: true });
+      media.querySelector('video')?.play().catch(() => {});
+    });
+  }
+
+  function close() {
+    sheet.scrollTop = 0;
+    backdrop.classList.add('is-closing');
+    backdrop.classList.remove('is-open');
+    sheet.classList.remove('is-open');
+    document.body.classList.remove('project-sheet-open');
+    media.querySelector('video')?.pause();
+    window.setTimeout(() => {
+      backdrop.hidden = true;
+      sheet.hidden = true;
+      sheet.scrollTop = 0;
+      media.replaceChildren();
+      trigger?.focus({ preventScroll: true });
+      trigger = null;
+    }, 450);
+  }
+
+  projects.forEach((project) => {
+    const visual = project.querySelector('.phone, .case--wide > a');
+    if (!visual) return;
+    visual.classList.add('project-sheet-trigger');
+    visual.setAttribute('role', 'button');
+    visual.setAttribute('tabindex', '0');
+    visual.setAttribute('aria-haspopup', 'dialog');
+
+    const activate = (event) => {
+      if (visual.tagName === 'A') event.preventDefault();
+      open(project, visual);
+    };
+
+    visual.addEventListener('click', activate);
+    visual.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      open(project, visual);
+    });
+  });
+
+  backdrop.addEventListener('click', close);
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && sheet.classList.contains('is-open')) close();
+  });
+}
+
+initProjectSheets();
 
 function initPosterCarousel() {
   const carousel = document.querySelector('.poster-carousel');
