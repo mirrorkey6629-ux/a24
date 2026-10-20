@@ -461,7 +461,12 @@ function initProjectSheets() {
   backdrop.hidden = true;
   backdrop.innerHTML = `
     <div class="project-sheet-backdrop__title" id="project-sheet-title"></div>
-    <button class="project-sheet-backdrop__close" type="button" aria-label="Закрыть проект"><span aria-hidden="true"></span></button>`;
+    <button class="project-sheet-backdrop__close" type="button" aria-label="Закрыть проект"><span aria-hidden="true"></span></button>
+    <nav class="project-sheet-backdrop__nav" aria-label="Навигация по проектам">
+      <button class="project-sheet__previous" type="button">Предыдущий</button>
+      <span aria-hidden="true">/</span>
+      <button class="project-sheet__next" type="button">Следующий</button>
+    </nav>`;
 
   const sheet = document.createElement('section');
   sheet.className = 'project-sheet';
@@ -480,7 +485,11 @@ function initProjectSheets() {
   const title = backdrop.querySelector('.project-sheet-backdrop__title');
   const media = sheet.querySelector('.project-sheet__media');
   const closeButton = backdrop.querySelector('.project-sheet-backdrop__close');
+  const previousButton = backdrop.querySelector('.project-sheet__previous');
+  const nextButton = backdrop.querySelector('.project-sheet__next');
   let trigger = null;
+  let currentProjectIndex = 0;
+  let projectSwitchTimer = 0;
 
   function createMedia(project) {
     const galleryConfig = project.classList.contains('case--home')
@@ -501,7 +510,7 @@ function initProjectSheets() {
         const image = document.createElement('img');
         image.src = `${import.meta.env.BASE_URL}assets/${galleryConfig.folder}/${index}.png`;
         image.alt = '';
-        image.loading = 'lazy';
+        image.loading = 'eager';
         if (galleryConfig.wide.includes(index)) image.classList.add('project-sheet__gallery-wide');
         gallery.append(image);
       }
@@ -541,11 +550,36 @@ function initProjectSheets() {
     return document.createElement('div');
   }
 
-  function open(project, source) {
-    trigger = source;
+  function revealGallery(projectMedia) {
+    if (!projectMedia.classList.contains('project-sheet__gallery')) return;
+    const images = [...projectMedia.querySelectorAll('img')];
+    Promise.all(images.map((image) => {
+      if (image.complete && image.naturalWidth) return Promise.resolve();
+      return new Promise((resolve) => {
+        image.addEventListener('load', resolve, { once: true });
+        image.addEventListener('error', resolve, { once: true });
+      });
+    })).then(() => {
+      if (!media.contains(projectMedia)) return;
+      requestAnimationFrame(() => projectMedia.classList.add('is-ready'));
+    });
+  }
+
+  function renderProject(project) {
     sheet.scrollTop = 0;
     title.textContent = project.querySelector('.copy h2')?.textContent || '';
-    media.replaceChildren(createMedia(project));
+    const projectMedia = createMedia(project);
+    media.replaceChildren(projectMedia);
+    revealGallery(projectMedia);
+    const useEnglish = document.documentElement.lang === 'en';
+    previousButton.textContent = useEnglish ? 'Previous' : 'Предыдущий';
+    nextButton.textContent = useEnglish ? 'Next' : 'Следующий';
+  }
+
+  function open(project, source) {
+    trigger = source;
+    currentProjectIndex = projects.indexOf(project);
+    renderProject(project);
     backdrop.hidden = false;
     sheet.hidden = false;
     backdrop.classList.remove('is-closing');
@@ -558,8 +592,26 @@ function initProjectSheets() {
     });
   }
 
+  function showRelativeProject(direction) {
+    if (projectSwitchTimer) return;
+    currentProjectIndex = (currentProjectIndex + direction + projects.length) % projects.length;
+    const currentGallery = media.querySelector('.project-sheet__gallery');
+    if (!currentGallery) {
+      renderProject(projects[currentProjectIndex]);
+      return;
+    }
+
+    currentGallery.classList.remove('is-ready');
+    projectSwitchTimer = window.setTimeout(() => {
+      projectSwitchTimer = 0;
+      renderProject(projects[currentProjectIndex]);
+    }, 150);
+  }
+
   function close() {
     sheet.scrollTop = 0;
+    window.clearTimeout(projectSwitchTimer);
+    projectSwitchTimer = 0;
     backdrop.classList.add('is-closing');
     backdrop.classList.remove('is-open');
     sheet.classList.remove('is-open');
@@ -572,31 +624,40 @@ function initProjectSheets() {
       media.replaceChildren();
       trigger?.focus({ preventScroll: true });
       trigger = null;
-    }, 450);
+    }, 500);
   }
 
   projects.forEach((project) => {
     const visual = project.querySelector('.phone, .case--wide > a');
-    if (!visual) return;
-    visual.classList.add('project-sheet-trigger');
-    visual.setAttribute('role', 'button');
-    visual.setAttribute('tabindex', '0');
-    visual.setAttribute('aria-haspopup', 'dialog');
+    const heading = project.querySelector('.copy h2');
 
-    const activate = (event) => {
-      if (visual.tagName === 'A') event.preventDefault();
-      open(project, visual);
-    };
+    [visual, heading].filter(Boolean).forEach((control) => {
+      control.classList.add('project-sheet-trigger');
+      control.setAttribute('role', 'button');
+      control.setAttribute('tabindex', '0');
+      control.setAttribute('aria-haspopup', 'dialog');
 
-    visual.addEventListener('click', activate);
-    visual.addEventListener('keydown', (event) => {
-      if (event.key !== 'Enter' && event.key !== ' ') return;
-      event.preventDefault();
-      open(project, visual);
+      control.addEventListener('click', (event) => {
+        if (control.tagName === 'A') event.preventDefault();
+        open(project, control);
+      });
+      control.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        open(project, control);
+      });
     });
   });
 
   backdrop.addEventListener('click', close);
+  previousButton.addEventListener('click', (event) => {
+    event.stopPropagation();
+    showRelativeProject(-1);
+  });
+  nextButton.addEventListener('click', (event) => {
+    event.stopPropagation();
+    showRelativeProject(1);
+  });
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && sheet.classList.contains('is-open')) close();
   });

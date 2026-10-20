@@ -403,6 +403,8 @@ html, body { background: #fff; }
 
 .project-sheet-open { overflow: hidden; }
 .project-sheet-trigger { cursor: pointer; }
+.copy h2.project-sheet-trigger { transition: opacity .25s ease; }
+.copy h2.project-sheet-trigger:hover { opacity: .55; }
 .project-sheet-trigger:focus-visible { outline: 2px solid #000; outline-offset: 4px; }
 .project-sheet-backdrop {
   position: fixed;
@@ -415,7 +417,7 @@ html, body { background: #fff; }
   corner-shape: squircle;
   background: #000;
   transform: translateY(-100%);
-  transition: transform .45s cubic-bezier(.22,.8,.25,1);
+  transition: transform .5s cubic-bezier(.22,.8,.25,1);
 }
 .project-sheet-backdrop.is-open {
   transform: translateY(0);
@@ -428,21 +430,53 @@ html, body { background: #fff; }
   font-size: 15px;
   font-weight: 400;
   line-height: 20px;
-  opacity: 1;
+  opacity: 0;
+  transition: opacity .5s cubic-bezier(.22,.8,.25,1);
 }
+.project-sheet-backdrop__nav {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  display: flex;
+  gap: 0;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 20px;
+  opacity: 0;
+  transition: opacity .5s cubic-bezier(.22,.8,.25,1);
+}
+.project-sheet-backdrop__nav button {
+  padding: 0;
+  border: 0;
+  color: #fff;
+  background: transparent;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 20px;
+  cursor: pointer;
+}
+.project-sheet-backdrop__nav button:hover { opacity: .55; }
+.project-sheet-backdrop.is-open .project-sheet-backdrop__title,
+.project-sheet-backdrop.is-open .project-sheet-backdrop__nav { opacity: 1; }
 .project-sheet-backdrop__close {
   position: absolute;
+  z-index: 1;
   top: 12px;
-  right: 6px;
+  left: 50%;
   width: 48px;
   height: 32px;
   padding: 0;
   border: 0;
   border-radius: 16px;
   background: #000;
-  opacity: 1;
+  opacity: 0;
+  transform: translateX(-50%);
+  transition: opacity .5s cubic-bezier(.22,.8,.25,1);
   cursor: pointer;
 }
+.project-sheet-backdrop.is-open .project-sheet-backdrop__close { opacity: 1; }
 .project-sheet-backdrop__close span::before,
 .project-sheet-backdrop__close span::after {
   content: '';
@@ -457,6 +491,7 @@ html, body { background: #fff; }
 .project-sheet-backdrop__close span::after { transform: rotate(-45deg); }
 .project-sheet-backdrop__close:focus-visible { outline: 2px solid #000; outline-offset: 3px; }
 .project-sheet-backdrop.is-closing .project-sheet-backdrop__title,
+.project-sheet-backdrop.is-closing .project-sheet-backdrop__nav,
 .project-sheet-backdrop.is-closing .project-sheet-backdrop__close {
   opacity: 0;
   transition: none;
@@ -481,7 +516,10 @@ html, body { background: #fff; }
   width: 100%;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
+  opacity: 0;
+  transition: opacity .15s ease;
 }
+.project-sheet__gallery.is-ready { opacity: 1; }
 .project-sheet__gallery img {
   display: block;
   width: 100%;
