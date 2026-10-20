@@ -499,7 +499,7 @@ function initProjectSheets() {
 
       for (const index of imageOrder) {
         const image = document.createElement('img');
-        image.src = `/assets/${galleryConfig.folder}/${index}.png`;
+        image.src = `${import.meta.env.BASE_URL}assets/${galleryConfig.folder}/${index}.png`;
         image.alt = '';
         image.loading = 'lazy';
         if (galleryConfig.wide.includes(index)) image.classList.add('project-sheet__gallery-wide');
