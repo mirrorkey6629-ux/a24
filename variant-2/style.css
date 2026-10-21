@@ -533,7 +533,8 @@ html, body { background: #fff; }
   transition: opacity .15s ease;
 }
 .project-sheet__gallery.is-ready { opacity: 1; }
-.project-sheet__gallery img {
+.project-sheet__gallery img,
+.project-sheet__gallery video {
   display: block;
   width: 100%;
   height: auto;

@@ -456,7 +456,7 @@ function initExclusiveVideoPlayback() {
 initExclusiveVideoPlayback();
 
 function initProjectSheets() {
-  const projects = [...document.querySelectorAll('.portfolio--variant-two > .case--home, .portfolio--variant-two > .case--player, .portfolio--variant-two > .case--migration')];
+  const projects = [...document.querySelectorAll('.portfolio--variant-two > .case--home, .portfolio--variant-two > .case--player, .portfolio--variant-two > .case--migration, .portfolio--variant-two > .case--skillbox-home')];
   if (!projects.length) return;
 
   const backdrop = document.createElement('div');
@@ -501,6 +501,16 @@ function initProjectSheets() {
         ? { folder: 'maxiplayer', count: 6, order: [1, 2, 3, 4, 5, 6], wide: [1, 4] }
       : project.classList.contains('case--migration')
         ? { folder: 'migration', count: 5, wide: [1] }
+      : project.classList.contains('case--skillbox-home')
+        ? {
+          folder: 'skillbox-home',
+          order: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
+          wide: [1, 4, 9, 12, 17],
+          videos: {
+            10: 'main-video-v4-4.webm',
+            11: 'main-video-v4-3.webm',
+          },
+        }
         : null;
 
     if (galleryConfig) {
@@ -510,6 +520,19 @@ function initProjectSheets() {
       const imageOrder = galleryConfig.order ?? Array.from({ length: galleryConfig.count }, (_, index) => index + 1);
 
       for (const index of imageOrder) {
+        const videoFile = galleryConfig.videos?.[index];
+        if (videoFile) {
+          const video = document.createElement('video');
+          video.src = `${import.meta.env.BASE_URL}assets/${galleryConfig.folder}/${videoFile}`;
+          video.muted = true;
+          video.loop = true;
+          video.playsInline = true;
+          video.autoplay = true;
+          video.preload = 'auto';
+          gallery.append(video);
+          continue;
+        }
+
         const image = document.createElement('img');
         image.src = `${import.meta.env.BASE_URL}assets/${galleryConfig.folder}/${index}.png`;
         image.alt = '';
@@ -555,12 +578,13 @@ function initProjectSheets() {
 
   function revealGallery(projectMedia) {
     if (!projectMedia.classList.contains('project-sheet__gallery')) return;
-    const images = [...projectMedia.querySelectorAll('img')];
-    Promise.all(images.map((image) => {
-      if (image.complete && image.naturalWidth) return Promise.resolve();
+    const assets = [...projectMedia.querySelectorAll('img, video')];
+    Promise.all(assets.map((asset) => {
+      if (asset instanceof HTMLImageElement && asset.complete && asset.naturalWidth) return Promise.resolve();
+      if (asset instanceof HTMLVideoElement && asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) return Promise.resolve();
       return new Promise((resolve) => {
-        image.addEventListener('load', resolve, { once: true });
-        image.addEventListener('error', resolve, { once: true });
+        asset.addEventListener(asset instanceof HTMLVideoElement ? 'loadeddata' : 'load', resolve, { once: true });
+        asset.addEventListener('error', resolve, { once: true });
       });
     })).then(() => {
       if (!media.contains(projectMedia)) return;
