@@ -522,6 +522,9 @@ function initProjectSheets() {
       for (const index of imageOrder) {
         const videoFile = galleryConfig.videos?.[index];
         if (videoFile) {
+          const videoCard = document.createElement('div');
+          videoCard.className = 'project-sheet__gallery-video-card';
+
           const video = document.createElement('video');
           video.src = `${import.meta.env.BASE_URL}assets/${galleryConfig.folder}/${videoFile}`;
           video.muted = true;
@@ -529,7 +532,8 @@ function initProjectSheets() {
           video.playsInline = true;
           video.autoplay = true;
           video.preload = 'auto';
-          gallery.append(video);
+          videoCard.append(video);
+          gallery.append(videoCard);
           continue;
         }
 

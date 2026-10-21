@@ -533,6 +533,15 @@ html, body { background: #fff; }
   transition: opacity .15s ease;
 }
 .project-sheet__gallery.is-ready { opacity: 1; }
+.project-sheet__gallery-video-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 100px;
+  background: #eff4f6;
+  border-radius: 20px;
+  corner-shape: squircle;
+}
 .project-sheet__gallery img,
 .project-sheet__gallery video {
   display: block;
