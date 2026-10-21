@@ -25,9 +25,10 @@ function initProjectTags() {
 
     const tags = document.createElement('div');
     tags.className = 'tags';
+    const company = brand === 'Skillbox' ? 'SKILLBOX' : 'ZVUK';
     const values = project.classList.contains('case--phone')
-      ? [year, 'iOS', 'Android']
-      : [year, 'Web'];
+      ? [year, company, 'APP']
+      : [year, company, 'WEB'];
 
     values.filter(Boolean).forEach((value) => {
       const tag = document.createElement('span');
@@ -114,6 +115,7 @@ const englishProjects = [
 function initLanguageSwitcher() {
   const toggle = document.querySelector('[data-language-toggle]');
   if (!toggle) return;
+  const toggleText = toggle.querySelector('span:last-child');
 
   const intro = document.querySelector('.profile__intro');
   const footerIntro = document.querySelector('.footer-intro');
@@ -220,14 +222,15 @@ function initLanguageSwitcher() {
       link.setAttribute('aria-label', useEnglish ? 'Open the project in a new tab' : 'Открыть проект в новой вкладке');
     });
     toggle.setAttribute('aria-label', useEnglish ? 'Switch language to Russian' : 'Переключить язык на английский');
+    if (toggleText) toggleText.textContent = useEnglish ? 'EN' : 'RU';
     if (useEnglish) {
       document.querySelectorAll('.profile__intro, .experience, .copy, .footer-intro, .unsupported p')
         .forEach(protectEnglishShortWords);
     }
-    localStorage.setItem('portfolio-language', language);
+    localStorage.setItem('portfolio-language-v2', language);
   }
 
-  let currentLanguage = localStorage.getItem('portfolio-language') === 'en' ? 'en' : 'ru';
+  let currentLanguage = localStorage.getItem('portfolio-language-v2') === 'ru' ? 'ru' : 'en';
   toggle.addEventListener('click', () => {
     currentLanguage = currentLanguage === 'ru' ? 'en' : 'ru';
     applyLanguage(currentLanguage);
@@ -495,9 +498,9 @@ function initProjectSheets() {
     const galleryConfig = project.classList.contains('case--home')
       ? { folder: 'companion', count: 9, wide: [1, 4, 7] }
       : project.classList.contains('case--player')
-        ? { folder: 'maxiplayer', count: 4, order: [3, 2, 1, 4], wide: [1, 4] }
+        ? { folder: 'maxiplayer', count: 6, order: [1, 2, 3, 4, 5, 6], wide: [1, 4] }
       : project.classList.contains('case--migration')
-        ? { folder: 'migration', count: 3, wide: [1] }
+        ? { folder: 'migration', count: 5, wide: [1] }
         : null;
 
     if (galleryConfig) {
