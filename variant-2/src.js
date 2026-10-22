@@ -21,7 +21,7 @@ function initProjectTags() {
     if (!eyebrow || !heading) return;
 
     const [brand, year] = eyebrow.textContent.split(',').map((part) => part.trim());
-    if (brand && brand !== 'Звук' && !heading.textContent.includes(brand)) heading.append(` ${brand}`);
+    if (brand && brand !== 'Звук' && brand !== 'Skillbox' && !heading.textContent.includes(brand)) heading.append(` ${brand}`);
 
     const tags = document.createElement('div');
     tags.className = 'tags';
@@ -79,11 +79,11 @@ const englishProjects = [
     ],
   },
   {
-    title: 'Track selection mode',
+    title: 'Content pages',
     paragraphs: [
-      'Users wanted to select multiple tracks in a playlist so they could move them to other playlists, delete them, or download them in bulk.',
-      'We chose the more complex approach: a dedicated screen state with track selection and animated transitions of every element into and out of selection mode.',
-      'We had to sell this solution to both product and engineering because it was not the easiest to implement. As a bonus, the team began requesting animation and polished state transitions in every project that followed—they saw how much better it felt than clunky sliding bottom sheets.',
+      'Searching for and saving content are essential parts of the core experience in any music service. During my two years at Zvuk, I worked on playlist, book, podcast, and artist pages, as well as user listening insights, the collection, and search.',
+      'The main goal was to create a consistent visual and functional experience across content discovery and collection flows.',
+      'We gradually expanded the feature set while shaping a flow in which users can easily find something to listen to, return to saved content in their collection, understand how the service interprets their behavior, and refine their taste profile and recommendations.',
     ],
   },
   {
@@ -456,7 +456,7 @@ function initExclusiveVideoPlayback() {
 initExclusiveVideoPlayback();
 
 function initProjectSheets() {
-  const projects = [...document.querySelectorAll('.portfolio--variant-two > .case--home, .portfolio--variant-two > .case--player, .portfolio--variant-two > .case--migration, .portfolio--variant-two > .case--skillbox-home')];
+  const projects = [...document.querySelectorAll('.portfolio--variant-two > .case--home, .portfolio--variant-two > .case--player, .portfolio--variant-two > .case--migration, .portfolio--variant-two > .case--selection, .portfolio--variant-two > .case--skillbox-home, .portfolio--variant-two > .case--skillbox-builder')];
   if (!projects.length) return;
 
   const backdrop = document.createElement('div');
@@ -501,6 +501,8 @@ function initProjectSheets() {
         ? { folder: 'maxiplayer', count: 6, order: [1, 2, 3, 4, 5, 6], wide: [1, 4] }
       : project.classList.contains('case--migration')
         ? { folder: 'migration', count: 5, wide: [1] }
+      : project.classList.contains('case--selection')
+        ? { folder: 'track-selection', count: 7, wide: [3] }
       : project.classList.contains('case--skillbox-home')
         ? {
           folder: 'skillbox-home',
@@ -509,6 +511,19 @@ function initProjectSheets() {
           videos: {
             10: 'main-video-v4-4.webm',
             11: 'main-video-v4-3.webm',
+          },
+        }
+      : project.classList.contains('case--skillbox-builder')
+        ? {
+          folder: 'skillbox-builder',
+          order: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+          wide: [1, 4, 7, 10, 13, 16],
+          videos: {
+            5: 'video-5.mp4',
+            6: 'video-6.mp4',
+          },
+          portraitVideos: {
+            9: ['woman.mp4', 'man.mp4'],
           },
         }
         : null;
@@ -520,6 +535,26 @@ function initProjectSheets() {
       const imageOrder = galleryConfig.order ?? Array.from({ length: galleryConfig.count }, (_, index) => index + 1);
 
       for (const index of imageOrder) {
+        const portraitVideoFiles = galleryConfig.portraitVideos?.[index];
+        if (portraitVideoFiles) {
+          const portraitCard = document.createElement('div');
+          portraitCard.className = 'project-sheet__gallery-portrait-videos';
+
+          for (const portraitVideoFile of portraitVideoFiles) {
+            const portraitVideo = document.createElement('video');
+            portraitVideo.src = `${import.meta.env.BASE_URL}assets/${galleryConfig.folder}/${portraitVideoFile}`;
+            portraitVideo.muted = true;
+            portraitVideo.loop = true;
+            portraitVideo.playsInline = true;
+            portraitVideo.autoplay = true;
+            portraitVideo.preload = 'auto';
+            portraitCard.append(portraitVideo);
+          }
+
+          gallery.append(portraitCard);
+          continue;
+        }
+
         const videoFile = galleryConfig.videos?.[index];
         if (videoFile) {
           const videoCard = document.createElement('div');

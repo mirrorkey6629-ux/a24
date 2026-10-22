@@ -416,6 +416,7 @@ html, body { background: #fff; }
 
 .project-sheet-open { overflow: hidden; }
 .project-sheet-trigger { cursor: pointer; }
+.portfolio--variant-two .case--wide > a.project-sheet-trigger:hover { opacity: 1; }
 .copy h2.project-sheet-trigger { transition: opacity .25s ease; }
 .copy h2.project-sheet-trigger:hover { opacity: .55; }
 .project-sheet-trigger:focus-visible { outline: 2px solid #000; outline-offset: 4px; }
@@ -541,6 +542,26 @@ html, body { background: #fff; }
   background: #eff4f6;
   border-radius: 20px;
   corner-shape: squircle;
+}
+.project-sheet__gallery-portrait-videos {
+  display: flex;
+  aspect-ratio: 1392 / 1612;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 72px;
+  background: #eff4f6;
+  border-radius: 20px;
+  corner-shape: squircle;
+}
+.project-sheet__gallery .project-sheet__gallery-portrait-videos video {
+  width: 240px;
+  max-width: calc(100% - 40px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  corner-shape: round;
+  clip-path: circle(50%);
+  object-fit: cover;
 }
 .project-sheet__gallery img,
 .project-sheet__gallery video {
