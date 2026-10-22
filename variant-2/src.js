@@ -467,7 +467,7 @@ function initProjectSheets() {
     <button class="project-sheet-backdrop__close" type="button" aria-label="Закрыть проект"><span aria-hidden="true"></span></button>
     <nav class="project-sheet-backdrop__nav" aria-label="Навигация по проектам">
       <button class="project-sheet__previous" type="button">Предыдущий</button>
-      <span aria-hidden="true">/</span>
+      <span aria-hidden="true">&thinsp;/&thinsp;</span>
       <button class="project-sheet__next" type="button">Следующий</button>
     </nav>`;
 
@@ -480,12 +480,18 @@ function initProjectSheets() {
   sheet.setAttribute('tabindex', '-1');
   sheet.innerHTML = `
     <div class="project-sheet__content">
+      <header class="project-sheet__header">
+        <div class="project-sheet__tags tags"></div>
+        <h1 class="project-sheet__title" id="project-sheet-title"></h1>
+      </header>
       <div class="project-sheet__media"></div>
     </div>`;
 
   document.body.append(backdrop, sheet);
 
   const title = backdrop.querySelector('.project-sheet-backdrop__title');
+  const sheetTitle = sheet.querySelector('.project-sheet__title');
+  const sheetTags = sheet.querySelector('.project-sheet__tags');
   const media = sheet.querySelector('.project-sheet__media');
   const closeButton = backdrop.querySelector('.project-sheet-backdrop__close');
   const previousButton = backdrop.querySelector('.project-sheet__previous');
@@ -633,7 +639,14 @@ function initProjectSheets() {
 
   function renderProject(project) {
     sheet.scrollTop = 0;
-    title.textContent = project.querySelector('.copy h2')?.textContent || '';
+    const projectTitle = project.querySelector('.copy h2')?.textContent || '';
+    const projectCounter = document.createElement('span');
+    projectCounter.textContent = `${currentProjectIndex + 1}\u2009/\u20097`;
+    const backdropProjectTitle = document.createElement('span');
+    backdropProjectTitle.textContent = projectTitle;
+    title.replaceChildren(projectCounter, backdropProjectTitle);
+    sheetTitle.textContent = projectTitle;
+    sheetTags.replaceChildren(...[...project.querySelectorAll('.copy .tags span')].map((tag) => tag.cloneNode(true)));
     const projectMedia = createMedia(project);
     media.replaceChildren(projectMedia);
     revealGallery(projectMedia);
