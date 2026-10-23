@@ -159,6 +159,17 @@ function initLanguageSwitcher() {
     });
   }
 
+  function protectNumbersWithFollowingWord(root) {
+    if (!root) return;
+    const numberBeforeWord = /\b(\d+(?:[.,]\d+)?%?)\s+(?=[\p{L}])/gu;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    const textNodes = [];
+    while (walker.nextNode()) textNodes.push(walker.currentNode);
+    textNodes.forEach((node) => {
+      node.nodeValue = node.nodeValue.replace(numberBeforeWord, '$1\u00a0');
+    });
+  }
+
   function setProject(project, translation, useEnglish) {
     const title = project.querySelector('.copy h2');
     const paragraphs = [...project.querySelectorAll('.copy > p:not(.eyebrow)')];
@@ -227,6 +238,8 @@ function initLanguageSwitcher() {
       document.querySelectorAll('.profile__intro, .experience, .copy, .footer-intro, .unsupported p')
         .forEach(protectEnglishShortWords);
     }
+    document.querySelectorAll('.profile__intro, .experience, .copy, .footer-intro, .unsupported p')
+      .forEach(protectNumbersWithFollowingWord);
     localStorage.setItem('portfolio-language-v2', language);
   }
 
@@ -363,36 +376,6 @@ function initScrollCurve() {
   syncMotionPreference();
 }
 
-function initGameReveal() {
-  const game = document.querySelector('#footer-game');
-  if (!game) return;
-
-  let frame = 0;
-
-  function update() {
-    frame = 0;
-    const maxScroll = Math.max(document.documentElement.scrollHeight - window.innerHeight, 0);
-    const revealDistance = Math.min(320, maxScroll);
-    const revealStart = maxScroll - revealDistance;
-    const progress = revealDistance > 0
-      ? Math.max(0, Math.min(1, (window.scrollY - revealStart) / revealDistance))
-      : 1;
-
-    game.style.setProperty('--game-offset', `${((1 - progress) * 100).toFixed(2)}%`);
-    game.style.pointerEvents = progress > .98 ? 'auto' : 'none';
-  }
-
-  function requestUpdate() {
-    if (!frame) frame = requestAnimationFrame(update);
-  }
-
-  window.addEventListener('scroll', requestUpdate, { passive: true });
-  window.addEventListener('resize', requestUpdate);
-  update();
-}
-
-initGameReveal();
-
 function initExclusiveVideoPlayback() {
   const videos = [...document.querySelectorAll('.phone video')];
   if (!videos.length) return;
@@ -456,7 +439,10 @@ function initExclusiveVideoPlayback() {
 initExclusiveVideoPlayback();
 
 function initProjectSheets() {
-  const projects = [...document.querySelectorAll('.portfolio--variant-two > .case--home, .portfolio--variant-two > .case--player, .portfolio--variant-two > .case--migration, .portfolio--variant-two > .case--selection, .portfolio--variant-two > .case--skillbox-home, .portfolio--variant-two > .case--skillbox-builder')];
+  const graphicsProject = document.createElement('section');
+  graphicsProject.className = 'case--graphics';
+  graphicsProject.innerHTML = '<article class="copy"><h2>Graphics</h2></article>';
+  const projects = [...document.querySelectorAll('.portfolio--variant-two > .case--home, .portfolio--variant-two > .case--player, .portfolio--variant-two > .case--migration, .portfolio--variant-two > .case--selection, .portfolio--variant-two > .case--skillbox-home, .portfolio--variant-two > .case--skillbox-builder'), graphicsProject];
   if (!projects.length) return;
 
   const backdrop = document.createElement('div');
@@ -483,6 +469,7 @@ function initProjectSheets() {
       <header class="project-sheet__header">
         <div class="project-sheet__tags tags"></div>
         <h1 class="project-sheet__title" id="project-sheet-title"></h1>
+        <p class="project-sheet__description" hidden></p>
       </header>
       <div class="project-sheet__media"></div>
     </div>`;
@@ -491,7 +478,9 @@ function initProjectSheets() {
 
   const title = backdrop.querySelector('.project-sheet-backdrop__title');
   const sheetTitle = sheet.querySelector('.project-sheet__title');
+  const sheetDescription = sheet.querySelector('.project-sheet__description');
   const sheetTags = sheet.querySelector('.project-sheet__tags');
+  const sheetHeader = sheet.querySelector('.project-sheet__header');
   const media = sheet.querySelector('.project-sheet__media');
   const closeButton = backdrop.querySelector('.project-sheet-backdrop__close');
   const previousButton = backdrop.querySelector('.project-sheet__previous');
@@ -532,6 +521,8 @@ function initProjectSheets() {
             9: ['woman.mp4', 'man.mp4'],
           },
         }
+      : project.classList.contains('case--graphics')
+        ? { folder: 'graphics', count: 8, wide: [1, 4] }
         : null;
 
     if (galleryConfig) {
@@ -621,8 +612,11 @@ function initProjectSheets() {
     return document.createElement('div');
   }
 
-  function revealGallery(projectMedia) {
-    if (!projectMedia.classList.contains('project-sheet__gallery')) return;
+  function revealGallery(projectMedia, onReveal) {
+    if (!projectMedia.classList.contains('project-sheet__gallery')) {
+      onReveal?.();
+      return;
+    }
     const assets = [...projectMedia.querySelectorAll('img, video')];
     Promise.all(assets.map((asset) => {
       if (asset instanceof HTMLImageElement && asset.complete && asset.naturalWidth) return Promise.resolve();
@@ -633,24 +627,43 @@ function initProjectSheets() {
       });
     })).then(() => {
       if (!media.contains(projectMedia)) return;
-      requestAnimationFrame(() => projectMedia.classList.add('is-ready'));
+      requestAnimationFrame(() => {
+        projectMedia.classList.add('is-ready');
+        onReveal?.();
+      });
     });
   }
 
-  function renderProject(project) {
+  function renderProject(project, revealChangingContent = false) {
     sheet.scrollTop = 0;
-    const projectTitle = project.querySelector('.copy h2')?.textContent || '';
+    const useEnglish = document.documentElement.lang === 'en';
+    const projectTitle = project.classList.contains('case--graphics')
+      ? (useEnglish ? 'Graphics' : 'Графика')
+      : project.querySelector('.copy h2')?.textContent || '';
     const projectCounter = document.createElement('span');
-    projectCounter.textContent = `${currentProjectIndex + 1}\u2009/\u20097`;
+    const displayIndex = project.classList.contains('case--graphics') ? 8 : currentProjectIndex + 1;
+    projectCounter.textContent = `${displayIndex}\u2009/\u20098`;
     const backdropProjectTitle = document.createElement('span');
     backdropProjectTitle.textContent = projectTitle;
     title.replaceChildren(projectCounter, backdropProjectTitle);
     sheetTitle.textContent = projectTitle;
+    if (project.classList.contains('case--graphics')) {
+      const footerIntro = document.querySelector('.footer-intro');
+      sheetDescription.innerHTML = footerIntro?.innerHTML ?? '';
+      sheetDescription.hidden = false;
+    } else {
+      sheetDescription.replaceChildren();
+      sheetDescription.hidden = true;
+    }
     sheetTags.replaceChildren(...[...project.querySelectorAll('.copy .tags span')].map((tag) => tag.cloneNode(true)));
     const projectMedia = createMedia(project);
     media.replaceChildren(projectMedia);
-    revealGallery(projectMedia);
-    const useEnglish = document.documentElement.lang === 'en';
+    revealGallery(projectMedia, () => {
+      if (!revealChangingContent) return;
+      title.classList.remove('is-switching');
+      sheetHeader.classList.remove('is-switching');
+      window.setTimeout(() => title.classList.remove('is-project-switch'), 150);
+    });
     previousButton.textContent = useEnglish ? 'Previous' : 'Предыдущий';
     nextButton.textContent = useEnglish ? 'Next' : 'Следующий';
   }
@@ -681,9 +694,12 @@ function initProjectSheets() {
     }
 
     currentGallery.classList.remove('is-ready');
+    title.classList.add('is-project-switch');
+    title.classList.add('is-switching');
+    sheetHeader.classList.add('is-switching');
     projectSwitchTimer = window.setTimeout(() => {
       projectSwitchTimer = 0;
-      renderProject(projects[currentProjectIndex]);
+      renderProject(projects[currentProjectIndex], true);
     }, 150);
   }
 
@@ -727,6 +743,21 @@ function initProjectSheets() {
       });
     });
   });
+
+  const avatar = document.querySelector('.portfolio--variant-two .profile__avatar');
+  if (avatar) {
+    const graphicsIndex = projects.indexOf(graphicsProject);
+    avatar.addEventListener('click', () => {
+      currentProjectIndex = graphicsIndex;
+      open(graphicsProject, avatar);
+    });
+    avatar.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      currentProjectIndex = graphicsIndex;
+      open(graphicsProject, avatar);
+    });
+  }
 
   backdrop.addEventListener('click', close);
   previousButton.addEventListener('click', (event) => {
